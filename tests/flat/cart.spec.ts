@@ -37,13 +37,14 @@ test.describe('Add Books to Shopping Cart', () => {
   });
 
   test('Test logo is visible', async () => {
-    const logo = page.locator('.logo-icon');
+    const logo = page.getByRole('link', { name: /Kriso/i }).first();
     await expect(logo).toBeVisible();
   }); 
 
   test('Test search by keyword', async () => {
-    await page.getByRole('textbox', { name: 'Pealkiri, autor, ISBN, märksõ' }).click();
-    await page.getByRole('textbox', { name: 'Pealkiri, autor, ISBN, märksõ' }).fill('harry potter');
+    const searchInput = page.getByRole('textbox', { name: /Pealkiri,\s*autor,\s*ISBN/i });
+    await searchInput.click();
+    await searchInput.fill('harry potter');
     await page.getByRole('button', { name: 'Search' }).click();
 
     // parse numeric total from the results text and assert it's > 1

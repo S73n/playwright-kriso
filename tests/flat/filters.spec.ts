@@ -42,11 +42,11 @@ test.describe('Navigate Products via Filters', () => {
   });
 
   test('Test navigate to Kitarr category', async () => {
-    const musicSection = page.getByText('Muusikaraamatud ja noodid').nth(1);
+    const musicSection = page.getByRole('link', { name: 'Muusikaraamatud ja noodid' }).first();
     await expect(musicSection).toBeVisible();
     await musicSection.click();
 
-    await page.getByText('Kitarr').filter({ visible: true }).first().click();
+    await page.getByRole('link', { name: 'Kitarr' }).filter({ visible: true }).first().click();
     await expect(page).toHaveURL(/instrument=Guitar/);
 
     const resultsText = await page.locator('.sb-results-total').textContent();

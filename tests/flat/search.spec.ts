@@ -41,16 +41,18 @@ test.describe('Search for Books by Keywords', () => {
     }); 
 
   test('Test no products found', async () => {
-    await page.getByRole('textbox', { name: 'Pealkiri, autor, ISBN, märksõna' }).click();
-    await page.getByRole('textbox', { name: 'Pealkiri, autor, ISBN, märksõna' }).fill('xqzwmfkj');
+    const searchInput = page.getByRole('textbox', { name: /Pealkiri,\s*autor,\s*ISBN/i });
+    await searchInput.click();
+    await searchInput.fill('xqzwmfkj');
     await page.getByRole('button', { name: 'Search' }).click();
 
     await expect(page.getByText('Teie poolt sisestatud märksõnale vastavat raamatut ei leitud. Palun proovige uuesti!')).toBeVisible();
   });
 
     test('Test search results contain keyword', async () => {
-    await page.getByRole('textbox', { name: 'Pealkiri, autor, ISBN, märksõna' }).click();
-    await page.getByRole('textbox', { name: 'Pealkiri, autor, ISBN, märksõna' }).fill('tolkien');
+    const searchInput = page.getByRole('textbox', { name: /Pealkiri,\s*autor,\s*ISBN/i });
+    await searchInput.click();
+    await searchInput.fill('tolkien');
     await page.getByRole('button', { name: 'Search' }).click();
 
     const keywordLinks = page.getByRole('link', { name: /tolkien/i });
@@ -59,8 +61,9 @@ test.describe('Search for Books by Keywords', () => {
   });
 
     test('Test search by ISBN', async () => {
-    await page.getByRole('textbox', { name: 'Pealkiri, autor, ISBN, märksõna' }).click();
-    await page.getByRole('textbox', { name: 'Pealkiri, autor, ISBN, märksõna' }).fill('9780307588371');
+    const searchInput = page.getByRole('textbox', { name: /Pealkiri,\s*autor,\s*ISBN/i });
+    await searchInput.click();
+    await searchInput.fill('9780307588371');
     await page.getByRole('button', { name: 'Search' }).click();
 
     await expect(page.getByRole('link', { name: /Gone Girl/i }).first()).toBeVisible();

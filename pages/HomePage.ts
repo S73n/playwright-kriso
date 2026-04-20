@@ -74,11 +74,11 @@ export class HomePage extends BasePage {
   }
 
   async openMusicBooksSection() {
-    await this.page.getByText('Muusikaraamatud ja noodid').nth(1).click();
+    await this.page.getByRole('link', { name: 'Muusikaraamatud ja noodid' }).first().click();
   }
 
   async openKitarrCategory() {
-    await this.page.getByText('Kitarr').filter({ visible: true }).first().click();
+    await this.page.getByRole('link', { name: 'Kitarr' }).filter({ visible: true }).first().click();
   }
 
   async applyEnglishLanguageFilter() {

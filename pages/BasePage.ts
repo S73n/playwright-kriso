@@ -9,7 +9,7 @@ export class BasePage {
   constructor(protected page: Page) {
     this.logo = this.page.getByRole('link', { name: /Kriso/i }).first();
     this.consentButton = this.page.getByRole('button', { name: /Nõustun|I agree|Accept/i });
-    this.searchInput = this.page.getByRole('textbox', { name: 'Pealkiri, autor, ISBN, märksõna' });
+    this.searchInput = this.page.getByRole('textbox', { name: /Pealkiri,\s*autor,\s*ISBN/i });
     this.searchButton = this.page.getByRole('button', { name: 'Search' });
   }
 
