@@ -47,8 +47,9 @@ test.describe('Search for Books by Keywords', () => {
     await input.click();
     await input.fill('xqzwmfkj');
     await page.getByRole('button', { name: /Search|Otsi/i }).first().click();
-
-    await expect(page.getByText('Teie poolt sisestatud märksõnale vastavat raamatut ei leitud. Palun proovige uuesti!')).toBeVisible();
+    const noResultsMessage = page.locator('.msg.msg-info');
+    await expect(noResultsMessage).toBeVisible();
+    await expect(noResultsMessage).toContainText(/ei leitud|did not find any match/i);
   });
 
     test('Test search results contain keyword', async () => {

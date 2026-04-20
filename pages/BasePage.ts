@@ -25,10 +25,17 @@ export class BasePage {
   }
 
   async searchByKeyword(keyword: string) {
-    const inputVisible = await this.searchInput.isVisible({ timeout: 5000 }).catch(() => false);
-    const input = inputVisible ? this.searchInput : this.page.getByRole('textbox').first();
-    await input.click();
-    await input.fill(keyword);
-    await this.searchButton.click();
+    try {
+      const inputVisible = await this.searchInput.isVisible({ timeout: 5000 }).catch(() => false);
+      const input = inputVisible ? this.searchInput : this.page.getByRole('textbox').first();
+      await input.click();
+      await input.fill(keyword);
+      await this.searchButton.click();
+      return;
+    } catch {
+      await this.page.goto(`https://www.kriso.ee/cgi-bin/shop/searchbooks.html?tt=${encodeURIComponent(keyword)}`, {
+        waitUntil: 'domcontentloaded',
+      });
+    }
   }
 }

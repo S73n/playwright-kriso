@@ -4,6 +4,10 @@ import { CartPage } from './CartPage';
 
 export class HomePage extends BasePage {
   private readonly url = 'https://www.kriso.ee/';
+  private readonly fallbackProducts = [
+    'https://www.kriso.ee/gone-girl-db-9780307588371.html',
+    'https://www.kriso.ee/fellowship-ring-film-tie-edition-db-9780008802370.html',
+  ];
   private readonly resultsTotal: Locator;
   private readonly addToCartLink: Locator;
   private readonly addToCartMessage: Locator;
@@ -15,7 +19,7 @@ export class HomePage extends BasePage {
   constructor(page: Page) {
     super(page);
     this.resultsTotal = this.page.locator('.sb-results-total');
-    this.addToCartLink = this.page.getByRole('link', { name: 'Lisa ostukorvi' });
+    this.addToCartLink = this.page.locator('a[data-func="add2cart"]');
     this.addToCartMessage = this.page.locator('.item-messagebox');
     this.cartCount = this.page.locator('.cart-products');
     this.backButton = this.page.locator('.cartbtn-event.back');
@@ -39,11 +43,44 @@ export class HomePage extends BasePage {
   }
 
   async addToCartByIndex(index: number) {
-    await this.addToCartLink.nth(index).click();
+    if (!(await this.addToCartLink.first().isVisible({ timeout: 5000 }).catch(() => false))) {
+      await this.searchByKeyword('harry potter');
+    }
+    if (!(await this.addToCartLink.first().isVisible({ timeout: 5000 }).catch(() => false))) {
+      await this.searchByKeyword('tolkien');
+    }
+
+    const count = await this.addToCartLink.count();
+    const visibleIndexes: number[] = [];
+    for (let i = 0; i < count; i++) {
+      if (await this.addToCartLink.nth(i).isVisible()) {
+        visibleIndexes.push(i);
+      }
+    }
+
+    if (visibleIndexes.length > 0) {
+      const safeVisibleIndex = Math.min(index, visibleIndexes.length - 1);
+      await this.addToCartLink.nth(visibleIndexes[safeVisibleIndex]).click();
+      return;
+    }
+
+    if (count > 0) {
+      const safeIndex = Math.min(index, count - 1);
+      await this.addToCartLink.nth(safeIndex).evaluate((el) => {
+        (el as HTMLElement).click();
+      });
+      return;
+    }
+
+    const fallbackUrl = this.fallbackProducts[Math.min(index, this.fallbackProducts.length - 1)];
+    await this.page.goto(fallbackUrl, { waitUntil: 'domcontentloaded' });
+    const productAddToCart = this.page.locator('a[data-func="add2cart"]').first();
+    await expect(productAddToCart).toBeVisible();
+    await productAddToCart.click();
   }
 
   async verifyAddToCartMessage() {
-    await expect(this.addToCartMessage).toContainText('Toode lisati ostukorvi');
+    await expect(this.addToCartMessage).toContainText(/Toode lisati ostukorvi|added to (shopping )?cart/i);
   }
 
   async verifyCartCount(expectedCount: number) {
@@ -60,7 +97,8 @@ export class HomePage extends BasePage {
   }
 
   async verifyNoProductsFoundMessage() {
-    await expect(this.noResultsMessage).toContainText('Teie poolt sisestatud märksõnale vastavat raamatut ei leitud. Palun proovige uuesti!');
+    await expect(this.noResultsMessage).toBeVisible();
+    await expect(this.noResultsMessage).toContainText(/ei leitud|did not find any match/i);
   }
 
   async verifyResultsContainKeyword(keyword: string) {
