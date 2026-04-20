@@ -8,13 +8,16 @@ export class BasePage {
 
   constructor(protected page: Page) {
     this.logo = this.page.getByRole('link', { name: /Kriso/i }).first();
-    this.consentButton = this.page.getByRole('button', { name: 'Nõustun' });
+    this.consentButton = this.page.getByRole('button', { name: /Nõustun|I agree|Accept/i });
     this.searchInput = this.page.getByRole('textbox', { name: 'Pealkiri, autor, ISBN, märksõna' });
     this.searchButton = this.page.getByRole('button', { name: 'Search' });
   }
 
   async acceptCookies() {
-    await this.consentButton.click();
+    const isVisible = await this.consentButton.isVisible({ timeout: 5000 }).catch(() => false);
+    if (isVisible) {
+      await this.consentButton.click();
+    }
   }
 
   async verifyLogo() {

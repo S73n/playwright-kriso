@@ -20,6 +20,7 @@ let formatFilteredCount = 0;
 
 test.describe('Navigate Products via Filters (POM)', () => {
   test.beforeAll(async ({ browser }) => {
+    test.setTimeout(90_000);
     const context = await browser.newContext();
     page = await context.newPage();
     productPage = new ProductPage(page);

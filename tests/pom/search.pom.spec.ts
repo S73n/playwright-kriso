@@ -18,6 +18,7 @@ let homePage: HomePage;
 test.describe('Search for Books by Keywords (POM)', () => {
 
   test.beforeAll(async ({ browser }) => {
+      test.setTimeout(90_000);
       const context = await browser.newContext();
       page = await context.newPage();
   

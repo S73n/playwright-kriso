@@ -18,15 +18,21 @@ let page: Page;
 test.describe('Search for Books by Keywords', () => {
 
     test.beforeAll(async ({ browser }) => {
+      test.setTimeout(90_000);
       const context = await browser.newContext();
       page = await context.newPage();
   
-      await page.goto('https://www.kriso.ee/');
-      await page.getByRole('button', { name: 'Nõustun' }).click();
+      await page.goto('https://www.kriso.ee/', { waitUntil: 'domcontentloaded' });
+      const consentButton = page.getByRole('button', { name: /Nõustun|I agree|Accept/i });
+      if (await consentButton.isVisible({ timeout: 5000 }).catch(() => false)) {
+        await consentButton.click();
+      }
     });
   
     test.afterAll(async () => {
-      await page.context().close();
+      if (page) {
+        await page.context().close();
+      }
     });
 
     test('Test logo is visible', async () => {
