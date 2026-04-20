@@ -33,6 +33,11 @@ export class HomePage extends BasePage {
     expect(total).toBeGreaterThan(minCount);
   }
 
+  async getResultsCount() {
+    const resultsText = await this.resultsTotal.textContent();
+    return Number((resultsText || '').replace(/\D/g, '')) || 0;
+  }
+
   async addToCartByIndex(index: number) {
     await this.addToCartLink.nth(index).click();
   }
@@ -56,5 +61,31 @@ export class HomePage extends BasePage {
 
   async verifyNoProductsFoundMessage() {
     await expect(this.noResultsMessage).toContainText('Teie poolt sisestatud märksõnale vastavat raamatut ei leitud. Palun proovige uuesti!');
+  }
+
+  async verifyResultsContainKeyword(keyword: string) {
+    const keywordLinks = this.page.getByRole('link', { name: new RegExp(keyword, 'i') });
+    const count = await keywordLinks.count();
+    expect(count).toBeGreaterThan(1);
+  }
+
+  async verifyBookIsShown(title: string) {
+    await expect(this.page.getByRole('link', { name: new RegExp(title, 'i') }).first()).toBeVisible();
+  }
+
+  async openMusicBooksSection() {
+    await this.page.getByText('Muusikaraamatud ja noodid').nth(1).click();
+  }
+
+  async openKitarrCategory() {
+    await this.page.getByText('Kitarr').filter({ visible: true }).first().click();
+  }
+
+  async applyEnglishLanguageFilter() {
+    await this.page.getByRole('link', { name: 'English' }).first().click();
+  }
+
+  async applyCdFormatFilter() {
+    await this.page.getByRole('link', { name: 'CD' }).first().click();
   }
 }

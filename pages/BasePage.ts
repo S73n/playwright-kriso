@@ -7,10 +7,10 @@ export class BasePage {
   protected readonly searchButton: Locator;
 
   constructor(protected page: Page) {
-    this.logo = this.page.locator('.logo-icon');
+    this.logo = this.page.getByRole('link', { name: /Kriso/i }).first();
     this.consentButton = this.page.getByRole('button', { name: 'Nõustun' });
-    this.searchInput = this.page.locator('#top-search-text');
-    this.searchButton = this.page.locator('#top-search-btn-wrap');
+    this.searchInput = this.page.getByRole('textbox', { name: 'Pealkiri, autor, ISBN, märksõna' });
+    this.searchButton = this.page.getByRole('button', { name: 'Search' });
   }
 
   async acceptCookies() {

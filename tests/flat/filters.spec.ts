@@ -9,9 +9,70 @@
  * Tip: run `npx playwright codegen https://www.kriso.ee` to discover selectors.
  */
 import { test, expect } from '@playwright/test';
+import type { Page } from '@playwright/test';
+
+test.describe.configure({ mode: 'serial' });
+
+let page: Page;
+let initialCount = 0;
+let languageFilteredCount = 0;
+let formatFilteredCount = 0;
 
 test.describe('Navigate Products via Filters', () => {
+  test.beforeAll(async ({ browser }) => {
+    const context = await browser.newContext();
+    page = await context.newPage();
 
-  // TODO: implement tests
+    await page.goto('https://www.kriso.ee/');
+    await page.getByRole('button', { name: 'Nõustun' }).click();
+  });
+
+  test.afterAll(async () => {
+    await page.context().close();
+  });
+
+  test('Test logo is visible', async () => {
+    await expect(page.getByRole('link', { name: /Kriso/i }).first()).toBeVisible();
+  });
+
+  test('Test navigate to Kitarr category', async () => {
+    const musicSection = page.getByText('Muusikaraamatud ja noodid').nth(1);
+    await expect(musicSection).toBeVisible();
+    await musicSection.click();
+
+    await page.getByText('Kitarr').filter({ visible: true }).first().click();
+    await expect(page).toHaveURL(/instrument=Guitar/);
+
+    const resultsText = await page.locator('.sb-results-total').textContent();
+    initialCount = Number((resultsText || '').replace(/\D/g, '')) || 0;
+    expect(initialCount).toBeGreaterThan(1);
+  });
+
+  test('Test apply language and format filters', async () => {
+    await page.getByRole('link', { name: 'English' }).first().click();
+    await expect(page).toHaveURL(/mlanguage=/);
+
+    const languageFilteredText = await page.locator('.sb-results-total').textContent();
+    languageFilteredCount = Number((languageFilteredText || '').replace(/\D/g, '')) || 0;
+    expect(languageFilteredCount).toBeLessThan(initialCount);
+
+    await page.getByRole('link', { name: 'CD' }).first().click();
+    await expect(page).toHaveURL(/format=CD/);
+
+    const formatFilteredText = await page.locator('.sb-results-total').textContent();
+    formatFilteredCount = Number((formatFilteredText || '').replace(/\D/g, '')) || 0;
+    expect(formatFilteredCount).toBeLessThan(languageFilteredCount);
+  });
+
+  test('Test remove active filters', async () => {
+    await page.goBack();
+    await page.waitForLoadState('domcontentloaded');
+    await page.goBack();
+    await page.waitForLoadState('domcontentloaded');
+
+    const text = await page.locator('.sb-results-total').textContent();
+    const countAfterRemoval = Number((text || '').replace(/\D/g, '')) || 0;
+    expect(countAfterRemoval).toBeGreaterThan(formatFilteredCount);
+  });
 
 });
