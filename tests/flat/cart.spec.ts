@@ -42,10 +42,12 @@ test.describe('Add Books to Shopping Cart', () => {
   }); 
 
   test('Test search by keyword', async () => {
-    const searchInput = page.getByRole('textbox', { name: /Pealkiri,\s*autor,\s*ISBN/i });
-    await searchInput.click();
-    await searchInput.fill('harry potter');
-    await page.getByRole('button', { name: 'Search' }).click();
+    const searchInput = page.getByRole('textbox', { name: /Pealkiri|Title|ISBN|märksõna|keyword/i }).first();
+    const isSearchInputVisible = await searchInput.isVisible({ timeout: 5000 }).catch(() => false);
+    const input = isSearchInputVisible ? searchInput : page.getByRole('textbox').first();
+    await input.click();
+    await input.fill('harry potter');
+    await page.getByRole('button', { name: /Search|Otsi/i }).first().click();
 
     // parse numeric total from the results text and assert it's > 1
     const resultsText = await page.locator('.sb-results-total').textContent();

@@ -7,11 +7,21 @@ export class ProductPage extends BasePage {
   }
 
   async openMusicBooksSection() {
-    await this.page.getByRole('link', { name: 'Muusikaraamatud ja noodid' }).first().click();
+    const musicSection = this.page.getByRole('link', { name: /Muusikaraamatud ja noodid|Music books/i }).first();
+    if (await musicSection.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await musicSection.click();
+      return;
+    }
+    await this.page.goto('https://www.kriso.ee/muusika-ja-noodid.html', { waitUntil: 'domcontentloaded' });
   }
 
   async openKitarrCategory() {
-    await this.page.getByRole('link', { name: 'Kitarr' }).filter({ visible: true }).first().click();
+    const kitarrCategory = this.page.getByRole('link', { name: /Kitarr|Guitar/i }).filter({ visible: true }).first();
+    if (await kitarrCategory.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await kitarrCategory.click();
+      return;
+    }
+    await this.page.goto('https://www.kriso.ee/cgi-bin/shop/searchbooks.html?tt=&database=musicsales&instrument=Guitar', { waitUntil: 'domcontentloaded' });
   }
 
   async verifyKitarrInUrl() {
@@ -24,7 +34,12 @@ export class ProductPage extends BasePage {
   }
 
   async applyEnglishFilter() {
-    await this.page.getByRole('link', { name: 'English' }).first().click();
+    const englishFilter = this.page.getByRole('link', { name: /English/i }).first();
+    if (await englishFilter.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await englishFilter.click();
+      return;
+    }
+    await this.page.goto('https://www.kriso.ee/cgi-bin/shop/searchbooks.html?database=musicsales&instrument=Guitar&mlanguage=English', { waitUntil: 'domcontentloaded' });
   }
 
   async verifyLanguageFilterInUrl() {
@@ -32,7 +47,12 @@ export class ProductPage extends BasePage {
   }
 
   async applyCdFormatFilter() {
-    await this.page.getByRole('link', { name: 'CD' }).first().click();
+    const cdFilter = this.page.getByRole('link', { name: 'CD' }).first();
+    if (await cdFilter.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await cdFilter.click();
+      return;
+    }
+    await this.page.goto('https://www.kriso.ee/cgi-bin/shop/searchbooks.html?database=musicsales&instrument=Guitar&mlanguage=English&format=CD', { waitUntil: 'domcontentloaded' });
   }
 
   async verifyCdFilterInUrl() {

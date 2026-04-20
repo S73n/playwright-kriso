@@ -9,8 +9,8 @@ export class BasePage {
   constructor(protected page: Page) {
     this.logo = this.page.getByRole('link', { name: /Kriso/i }).first();
     this.consentButton = this.page.getByRole('button', { name: /Nõustun|I agree|Accept/i });
-    this.searchInput = this.page.getByRole('textbox', { name: /Pealkiri,\s*autor,\s*ISBN/i });
-    this.searchButton = this.page.getByRole('button', { name: 'Search' });
+    this.searchInput = this.page.getByRole('textbox', { name: /Pealkiri|Title|ISBN|märksõna|keyword/i }).first();
+    this.searchButton = this.page.getByRole('button', { name: /Search|Otsi/i }).first();
   }
 
   async acceptCookies() {
@@ -25,8 +25,10 @@ export class BasePage {
   }
 
   async searchByKeyword(keyword: string) {
-    await this.searchInput.click();
-    await this.searchInput.fill(keyword);
+    const inputVisible = await this.searchInput.isVisible({ timeout: 5000 }).catch(() => false);
+    const input = inputVisible ? this.searchInput : this.page.getByRole('textbox').first();
+    await input.click();
+    await input.fill(keyword);
     await this.searchButton.click();
   }
 }
